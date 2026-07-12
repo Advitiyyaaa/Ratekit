@@ -1,0 +1,54 @@
+{
+  "name": "ratekit",
+  "version": "0.1.0",
+  "description": "Framework-agnostic rate-limiting library with multiple algorithms and pluggable storage backends",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "bench": "tsx benchmarks/run.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "rate-limit",
+    "rate-limiter",
+    "throttle",
+    "token-bucket",
+    "leaky-bucket",
+    "sliding-window",
+    "fixed-window",
+    "redis",
+    "middleware"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "ioredis": "^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "ioredis": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.0",
+    "ioredis": "^5.6.1",
+    "tinybench": "^4.0.1",
+    "tsx": "^4.19.4",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.1"
+  }
+}

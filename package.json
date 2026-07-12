@@ -1,0 +1,26 @@
+{
+  "name": "ratekit-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "RateKit monorepo — rate-limiting library + docs website",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build -w packages/core",
+    "test": "npm run test -w packages/core",
+    "bench": "npm run bench -w packages/core",
+    "typecheck": "tsc --build",
+    "lint": "eslint . --ext .ts,.tsx",
+    "dev:api": "npm run dev -w apps/api",
+    "dev:web": "npm run dev -w apps/web",
+    "dev": "npm run dev:api & npm run dev:web"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
