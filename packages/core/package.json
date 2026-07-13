@@ -21,7 +21,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "bench": "tsx benchmarks/run.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run test && npm run build"
   },
   "keywords": [
     "rate-limit",
@@ -32,9 +33,24 @@
     "sliding-window",
     "fixed-window",
     "redis",
-    "middleware"
+    "middleware",
+    "nodejs"
   ],
+  "author": {
+    "name": "Advitiya Arya"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/ratekit"
+  },
+  "homepage": "https://github.com/your-username/ratekit#readme",
+  "bugs": {
+    "url": "https://github.com/your-username/ratekit/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "peerDependencies": {
     "ioredis": "^5.0.0"
   },

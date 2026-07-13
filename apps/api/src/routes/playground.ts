@@ -8,6 +8,7 @@ import {
   SlidingWindowCounter,
 } from 'ratekit';
 import type { RateLimiter } from 'ratekit';
+import { requireAuth } from '../middleware/requireAuth.js';
 
 const router = Router();
 
@@ -74,7 +75,7 @@ function createLimiter(
  * Run a rate-limit simulation with the specified algorithm and config.
  * Returns a timeline of allowed/denied requests per tick for charting.
  */
-router.post('/simulate', async (req, res) => {
+router.post('/simulate', requireAuth, async (req, res) => {
   try {
     const {
       algorithm,

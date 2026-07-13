@@ -1,10 +1,15 @@
-import { Link, useLocation } from 'react-router-dom';
-import { Gauge, Github, Menu, X } from 'lucide-react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Gauge, Github, Menu, X, LogIn, Crown, User } from 'lucide-react';
 import { useState } from 'react';
+import { useAuth } from '../context/useAuth';
+import { authClient } from '../lib/auth-client';
 
 export function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const { user, isAdmin, isLoading } = useAuth();
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -17,6 +22,14 @@ export function Header() {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
+
+  async function handleSignOut() {
+    setDropdownOpen(false);
+    await authClient.signOut();
+    navigate('/');
+  }
+
+  const avatarLetter = user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? '?';
 
   return (
     <header
@@ -49,9 +62,21 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors no-underline flex items-center gap-1.5 ${
+                isActive('/admin')
+                  ? 'text-amber-400 bg-amber-500/10'
+                  : 'text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10'
+              }`}
+            >
+              <Crown size={13} /> Admin
+            </Link>
+          )}
         </nav>
 
-        {/* GitHub + Mobile toggle */}
+        {/* Right side: auth + github */}
         <div className="flex items-center gap-2">
           <a
             href="https://github.com"
@@ -61,6 +86,78 @@ export function Header() {
           >
             <Github size={20} />
           </a>
+
+          {/* Auth area */}
+          {!isLoading && (
+            <>
+              {user ? (
+                /* User avatar dropdown */
+                <div className="relative">
+                  <button
+                    id="nav-user-menu"
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                    className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center text-sm font-bold text-base-950 cursor-pointer border-none hover:ring-2 hover:ring-accent/50 transition-all"
+                  >
+                    {avatarLetter}
+                  </button>
+
+                  {dropdownOpen && (
+                    <>
+                      {/* Backdrop */}
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setDropdownOpen(false)}
+                      />
+                      {/* Dropdown */}
+                      <div
+                        className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border py-1 shadow-2xl"
+                        style={{ background: 'rgba(16, 22, 40, 0.98)', backdropFilter: 'blur(20px)' }}
+                      >
+                        <div className="px-4 py-3 border-b border-border">
+                          <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
+                          <p className="text-xs text-text-muted truncate">{user.email}</p>
+                        </div>
+                        <Link
+                          to="/account"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center gap-2 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors no-underline"
+                        >
+                          <User size={14} /> Account
+                        </Link>
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-400 hover:bg-amber-500/10 transition-colors no-underline"
+                          >
+                            <Crown size={14} /> Admin Panel
+                          </Link>
+                        )}
+                        <div className="border-t border-border mt-1" />
+                        <button
+                          id="nav-signout"
+                          onClick={handleSignOut}
+                          className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:text-red-400 hover:bg-surface-elevated transition-colors cursor-pointer bg-transparent border-none text-left"
+                        >
+                          Sign out
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                /* Sign in button */
+                <Link
+                  to="/sign-in"
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 transition-colors no-underline"
+                >
+                  <LogIn size={14} /> Sign in
+                </Link>
+              )}
+            </>
+          )}
+
+          {/* Mobile toggle */}
           <button
             className="md:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors bg-transparent border-none cursor-pointer"
             onClick={() => setMobileOpen(!mobileOpen)}
@@ -87,6 +184,32 @@ export function Header() {
               {link.label}
             </Link>
           ))}
+          {isAdmin && (
+            <Link
+              to="/admin"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 no-underline transition-colors"
+            >
+              <Crown size={13} /> Admin
+            </Link>
+          )}
+          {!user ? (
+            <Link
+              to="/sign-in"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-accent hover:bg-accent-soft no-underline transition-colors mt-1"
+            >
+              <LogIn size={14} /> Sign in
+            </Link>
+          ) : (
+            <Link
+              to="/account"
+              onClick={() => setMobileOpen(false)}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary no-underline transition-colors mt-1"
+            >
+              <User size={14} /> Account
+            </Link>
+          )}
         </nav>
       )}
     </header>

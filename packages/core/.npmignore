@@ -1,0 +1,13 @@
+# Source files — consumers only need dist/
+src/
+test/
+benchmarks/
+
+# TypeScript build artifacts not needed in the package
+tsconfig.json
+tsconfig.tsbuildinfo
+vitest.config.ts
+
+# Dev/tooling
+node_modules/
+*.log

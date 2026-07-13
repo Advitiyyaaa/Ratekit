@@ -48,7 +48,7 @@ router.get('/:slug', async (req, res) => {
 router.get('/', async (_req, res) => {
   try {
     const files = await fs.readdir(DOCS_DIR);
-    const docs = [];
+    const docs: Record<string, unknown>[] = [];
 
     for (const file of files) {
       if (!file.endsWith('.md')) continue;

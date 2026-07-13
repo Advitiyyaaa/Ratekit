@@ -1,5 +1,9 @@
 import mongoose, { Schema, type InferSchemaType } from 'mongoose';
 
+// Field named `type` causes InferSchemaType to misinterpret the schema
+// definition (Mongoose's classic ambiguity: `{ type: X }` means "this field's
+// type is X", not "a field called type with value X"). We keep the schema
+// simple and define explicit interfaces for use in the seed function instead.
 const configFieldSchema = new Schema(
   {
     name: { type: String, required: true },
@@ -38,12 +42,42 @@ export type AlgorithmDocument = InferSchemaType<typeof algorithmSchema>;
 
 export const Algorithm = mongoose.model('Algorithm', algorithmSchema);
 
+// ---------------------------------------------------------------------------
+// Explicit interfaces for seed data — avoids InferSchemaType's inability to
+// handle a schema path literally named `type`.
+// ---------------------------------------------------------------------------
+
+interface ConfigField {
+  name: string;
+  /** Always 'number' for now; extend the enum in the schema if needed. */
+  type: 'number';
+  label: string;
+  description: string;
+  defaultValue: number;
+  min: number;
+  max: number;
+  step?: number;
+}
+
+interface AlgorithmSeed {
+  slug: string;
+  name: string;
+  description: string;
+  category: string;
+  complexity: 'O(1)' | 'O(n)';
+  burstTolerance: string;
+  accuracy: string;
+  recommended?: boolean;
+  tradeoffs: string;
+  configFields: ConfigField[];
+}
+
 /**
  * Seed the algorithms collection with data for all 5 algorithms.
  * Uses upsert to avoid duplicates on restart.
  */
 export async function seedAlgorithms(): Promise<void> {
-  const algorithms: AlgorithmDocument[] = [
+  const algorithms: AlgorithmSeed[] = [
     {
       slug: 'token-bucket',
       name: 'Token Bucket',
