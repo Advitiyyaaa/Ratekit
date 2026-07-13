@@ -20,7 +20,7 @@ export function AccountPage() {
     );
   }
 
-  const avatarLetter = user.name?.[0]?.toUpperCase() ?? user.email[0].toUpperCase();
+  const avatarLetter = user.name?.[0]?.toUpperCase() ?? user.email?.[0]?.toUpperCase() ?? '?';
   const userWithRole = user as typeof user & { role?: string };
 
   return (

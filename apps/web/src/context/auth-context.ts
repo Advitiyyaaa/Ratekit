@@ -9,7 +9,7 @@ interface AuthContextValue {
     emailVerified: boolean;
     createdAt: Date;
     updatedAt: Date;
-    role?: string;
+    role?: string | null;
   } | null;
   session: {
     id: string;
