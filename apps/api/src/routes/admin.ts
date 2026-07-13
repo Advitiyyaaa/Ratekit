@@ -43,7 +43,7 @@ router.patch('/users/:id/role', requireAdmin, async (req, res) => {
     const auth = getAuth();
     const updated = await auth.api.setRole({
       headers: fromNodeHeaders(req.headers),
-      body: { userId: id, role: role as 'admin' | 'user' },
+      body: { userId: id as string, role: role as 'admin' | 'user' },
     });
 
     res.json(updated);
