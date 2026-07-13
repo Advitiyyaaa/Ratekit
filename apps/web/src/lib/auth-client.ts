@@ -9,7 +9,7 @@ import { adminClient } from 'better-auth/client/plugins';
 export const authClient = createAuthClient({
   // Point directly at the API server — BetterAuth's internal fetch bypasses Vite proxy.
   // CORS is configured on the API to accept requests from localhost:5173/5174.
-  baseURL: 'http://localhost:3001',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
   plugins: [adminClient()],
 });
 

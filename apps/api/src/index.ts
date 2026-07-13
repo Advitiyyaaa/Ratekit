@@ -24,7 +24,7 @@ const PORT = parseInt(process.env['PORT'] ?? '3001', 10);
 // Allow both 5173 and 5174 since Vite bumps the port if 5173 is busy.
 app.use(
   cors({
-    origin: ['http://localhost:5173', 'http://localhost:5174'],
+    origin: ['http://localhost:5173', 'http://localhost:5174', process.env['FRONTEND_URL']!].filter(Boolean),
     credentials: true,
   }),
 );
