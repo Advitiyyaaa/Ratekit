@@ -10,6 +10,7 @@ import { SignInPage } from './pages/SignInPage';
 import { SignUpPage } from './pages/SignUpPage';
 import { AccountPage } from './pages/AccountPage';
 import { AdminPage } from './pages/AdminPage';
+import { NotFoundPage } from './pages/NotFoundPage';
 
 function App() {
   return (
@@ -52,6 +53,9 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* 404 catch-all */}
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
       <Footer />

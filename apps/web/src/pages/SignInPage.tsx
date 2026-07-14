@@ -1,15 +1,22 @@
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Gauge, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { authClient } from '../lib/auth-client';
+import type { Location } from 'react-router-dom';
 
 export function SignInPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+
+  // ProtectedRoute stores the full location (pathname + search) in state.from
+  const from = (location.state as { from?: Location } | null)?.from;
+  const redirectTo = from ? `${from.pathname}${from.search ?? ''}` : '/';
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -28,20 +35,41 @@ export function SignInPage() {
       return;
     }
 
-    navigate('/');
+    // Navigate back to the page the user was trying to reach (with all query params)
+    navigate(redirectTo, { replace: true });
   }
 
   return (
-    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-[calc(100vh-8rem)] flex items-center justify-center px-4 relative overflow-hidden">
+      {/* Background orbs */}
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: '500px', height: '500px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)',
+          top: '-100px', left: '50%', transform: 'translateX(-50%)',
+        }}
+      />
+      <div
+        className="absolute pointer-events-none"
+        style={{
+          width: '300px', height: '300px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(124,92,255,0.06) 0%, transparent 70%)',
+          bottom: '-50px', right: '10%',
+        }}
+      />
+
+      <div className="w-full max-w-md relative z-10">
         {/* Card */}
         <div
-          className="rounded-2xl border border-border p-8"
-          style={{ background: 'rgba(16, 22, 40, 0.85)', backdropFilter: 'blur(20px)' }}
+          className="rounded-2xl border border-border p-8 animate-fade-in-up"
+          style={{ background: 'rgba(16, 22, 40, 0.90)', backdropFilter: 'blur(24px)' }}
         >
           {/* Logo */}
           <div className="flex flex-col items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-blue-500 flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-purple flex items-center justify-center animate-float">
               <Gauge size={24} className="text-base-950" />
             </div>
             <div className="text-center">
@@ -57,7 +85,7 @@ export function SignInPage() {
           {/* Form */}
           <form onSubmit={handleSubmit} className="flex flex-col gap-4">
             {/* Email */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 animate-fade-in-up opacity-0 stagger-1">
               <label htmlFor="signin-email" className="text-sm font-medium text-text-secondary">
                 Email address
               </label>
@@ -76,7 +104,7 @@ export function SignInPage() {
             </div>
 
             {/* Password */}
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-1.5 animate-fade-in-up opacity-0 stagger-2">
               <label htmlFor="signin-password" className="text-sm font-medium text-text-secondary">
                 Password
               </label>
@@ -101,9 +129,23 @@ export function SignInPage() {
               </div>
             </div>
 
+            {/* Remember me */}
+            <div className="flex items-center gap-2 animate-fade-in-up opacity-0 stagger-3">
+              <input
+                id="signin-remember"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 accent-[var(--color-accent)] cursor-pointer rounded"
+              />
+              <label htmlFor="signin-remember" className="text-sm text-text-muted cursor-pointer select-none">
+                Remember me
+              </label>
+            </div>
+
             {/* Error */}
             {error && (
-              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400">
+              <div className="bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400 animate-fade-in">
                 {error}
               </div>
             )}
@@ -113,7 +155,7 @@ export function SignInPage() {
               id="signin-submit"
               type="submit"
               disabled={loading}
-              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-blue-500 text-base-950 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer border-none mt-2"
+              className="flex items-center justify-center gap-2 w-full py-2.5 rounded-lg bg-gradient-to-r from-accent to-purple text-base-950 font-semibold text-sm hover:opacity-90 transition-opacity disabled:opacity-50 cursor-pointer border-none mt-2 animate-fade-in-up opacity-0 stagger-4"
             >
               {loading ? (
                 <span className="w-4 h-4 border-2 border-base-950/40 border-t-base-950 rounded-full animate-spin" />
