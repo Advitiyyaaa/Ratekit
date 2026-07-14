@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Gauge, Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { authClient } from '../lib/auth-client';
 import type { Location } from 'react-router-dom';
+import { LogoBox } from '../components/Logo';
 
 export function SignInPage() {
   const navigate = useNavigate();
@@ -47,7 +48,7 @@ export function SignInPage() {
         style={{
           width: '500px', height: '500px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(0,212,255,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, var(--color-accent-soft) 0%, transparent 70%)',
           top: '-100px', left: '50%', transform: 'translateX(-50%)',
         }}
       />
@@ -56,7 +57,7 @@ export function SignInPage() {
         style={{
           width: '300px', height: '300px',
           borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(124,92,255,0.06) 0%, transparent 70%)',
+          background: 'radial-gradient(circle, var(--color-purple-soft) 0%, transparent 70%)',
           bottom: '-50px', right: '10%',
         }}
       />
@@ -64,13 +65,12 @@ export function SignInPage() {
       <div className="w-full max-w-md relative z-10">
         {/* Card */}
         <div
-          className="rounded-2xl border border-border p-8 animate-fade-in-up"
-          style={{ background: 'rgba(16, 22, 40, 0.90)', backdropFilter: 'blur(24px)' }}
+          className="rounded-2xl border border-border p-8 animate-fade-in-up bg-surface/90 backdrop-blur-xl"
         >
           {/* Logo */}
           <div className="flex flex-col items-center gap-3 mb-8">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-purple flex items-center justify-center animate-float">
-              <Gauge size={24} className="text-base-950" />
+            <div className="animate-float">
+              <LogoBox size={56} />
             </div>
             <div className="text-center">
               <h1 className="text-2xl font-bold text-text-primary">

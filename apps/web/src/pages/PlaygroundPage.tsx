@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef, memo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Play, RotateCcw, Loader2, Share2, Download, CheckCircle2, Star, ChevronRight } from 'lucide-react';
 import {
@@ -146,6 +146,119 @@ function SliderWithTooltip({
   );
 }
 
+// ─── Memoized Simulation Chart ────────────────────────────────────────────────
+
+const SimulationChart = memo(function SimulationChart({
+  timeline, summary, running, handleDownloadCSV
+}: {
+  timeline: SimulationTick[];
+  summary: { totalAllowed: number; totalDenied: number } | null;
+  running: boolean;
+  handleDownloadCSV: () => void;
+}) {
+  return (
+    <div className="lg:col-span-2 space-y-5">
+      {/* Summary cards */}
+      {summary && (
+        <div className="grid grid-cols-3 gap-4 animate-fade-in-up">
+          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-bold text-success">
+              <AnimatedNumber value={summary.totalAllowed} />
+            </div>
+            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Allowed</div>
+          </div>
+          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-bold text-danger">
+              <AnimatedNumber value={summary.totalDenied} />
+            </div>
+            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Denied</div>
+          </div>
+          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-bold text-accent">
+              <AnimatedNumber
+                value={summary.totalAllowed + summary.totalDenied > 0
+                  ? Math.round((summary.totalAllowed / (summary.totalAllowed + summary.totalDenied)) * 100)
+                  : 0}
+              />%
+            </div>
+            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Pass Rate</div>
+          </div>
+        </div>
+      )}
+
+      {/* Main chart */}
+      <div className="glass-card p-5" style={{ cursor: 'default' }}>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
+            Requests Over Time
+          </h3>
+          {timeline.length > 0 && (
+            <button onClick={handleDownloadCSV} className="btn-secondary text-xs py-1 px-2">
+              <Download size={12} /> Export CSV
+            </button>
+          )}
+        </div>
+        {timeline.length > 0 ? (
+          <div className="animate-fade-in">
+            <ResponsiveContainer width="100%" height={350}>
+              <AreaChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+                <defs>
+                  <linearGradient id="colorAllowed" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#00e676" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#00e676" stopOpacity={0} />
+                  </linearGradient>
+                  <linearGradient id="colorDenied" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#ff5252" stopOpacity={0.3} />
+                    <stop offset="95%" stopColor="#ff5252" stopOpacity={0} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
+                <XAxis
+                  dataKey="time"
+                  tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`}
+                  stroke="#5a6380"
+                  fontSize={12}
+                />
+                <YAxis stroke="#5a6380" fontSize={12} />
+                <Tooltip content={<RichTooltip />} />
+                <Legend />
+                <Area type="monotone" dataKey="allowed" name="Allowed" stroke="#00e676" strokeWidth={2} fillOpacity={1} fill="url(#colorAllowed)" />
+                <Area type="monotone" dataKey="denied"  name="Denied"  stroke="#ff5252" strokeWidth={2} fillOpacity={1} fill="url(#colorDenied)"  />
+              </AreaChart>
+            </ResponsiveContainer>
+          </div>
+        ) : (
+          <EmptyChartState running={running} />
+        )}
+      </div>
+
+      {/* Remaining capacity chart */}
+      {timeline.length > 0 && (
+        <div className="glass-card p-5 animate-fade-in-up" style={{ cursor: 'default' }}>
+          <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
+            Remaining Capacity
+          </h3>
+          <ResponsiveContainer width="100%" height={200}>
+            <AreaChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
+              <defs>
+                <linearGradient id="colorRemaining" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
+              <XAxis dataKey="time" tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`} stroke="#5a6380" fontSize={12} />
+              <YAxis stroke="#5a6380" fontSize={12} />
+              <Tooltip content={<RichTooltip />} />
+              <Area type="monotone" dataKey="remaining" name="Remaining" stroke="#00d4ff" strokeWidth={2} fillOpacity={1} fill="url(#colorRemaining)" />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      )}
+    </div>
+  );
+});
+
 // ─── PlaygroundPage ───────────────────────────────────────────────────────────
 
 export function PlaygroundPage() {
@@ -242,7 +355,7 @@ export function PlaygroundPage() {
   };
 
   // CSV export
-  const handleDownloadCSV = () => {
+  const handleDownloadCSV = useCallback(() => {
     if (!timeline.length) return;
     const headers = ['time_ms', 'allowed', 'denied', 'remaining', 'totalAllowed', 'totalDenied'];
     const rows = timeline.map((t) =>
@@ -256,7 +369,7 @@ export function PlaygroundPage() {
     a.download = `ratekit-${selectedSlug}-simulation.csv`;
     a.click();
     URL.revokeObjectURL(url);
-  };
+  }, [timeline, selectedSlug]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-10">
@@ -414,106 +527,13 @@ export function PlaygroundPage() {
           </div>
         </div>
 
-        {/* ── Right panel ─────────────────────────────────────────────────── */}
-        <div className="lg:col-span-2 space-y-5">
-          {/* Summary cards */}
-          {summary && (
-            <div className="grid grid-cols-3 gap-4 animate-fade-in-up">
-              <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-                <div className="text-2xl font-bold text-success">
-                  <AnimatedNumber value={summary.totalAllowed} />
-                </div>
-                <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Allowed</div>
-              </div>
-              <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-                <div className="text-2xl font-bold text-danger">
-                  <AnimatedNumber value={summary.totalDenied} />
-                </div>
-                <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Denied</div>
-              </div>
-              <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-                <div className="text-2xl font-bold text-accent">
-                  <AnimatedNumber
-                    value={summary.totalAllowed + summary.totalDenied > 0
-                      ? Math.round((summary.totalAllowed / (summary.totalAllowed + summary.totalDenied)) * 100)
-                      : 0}
-                  />%
-                </div>
-                <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Pass Rate</div>
-              </div>
-            </div>
-          )}
-
-          {/* Main chart */}
-          <div className="glass-card p-5" style={{ cursor: 'default' }}>
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
-                Requests Over Time
-              </h3>
-              {timeline.length > 0 && (
-                <button onClick={handleDownloadCSV} className="btn-secondary text-xs py-1 px-2">
-                  <Download size={12} /> Export CSV
-                </button>
-              )}
-            </div>
-            {timeline.length > 0 ? (
-              <div className="animate-fade-in">
-                <ResponsiveContainer width="100%" height={350}>
-                  <AreaChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorAllowed" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#00e676" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#00e676" stopOpacity={0} />
-                      </linearGradient>
-                      <linearGradient id="colorDenied" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#ff5252" stopOpacity={0.3} />
-                        <stop offset="95%" stopColor="#ff5252" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
-                    <XAxis
-                      dataKey="time"
-                      tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`}
-                      stroke="#5a6380"
-                      fontSize={12}
-                    />
-                    <YAxis stroke="#5a6380" fontSize={12} />
-                    <Tooltip content={<RichTooltip />} />
-                    <Legend />
-                    <Area type="monotone" dataKey="allowed" name="Allowed" stroke="#00e676" strokeWidth={2} fillOpacity={1} fill="url(#colorAllowed)" />
-                    <Area type="monotone" dataKey="denied"  name="Denied"  stroke="#ff5252" strokeWidth={2} fillOpacity={1} fill="url(#colorDenied)"  />
-                  </AreaChart>
-                </ResponsiveContainer>
-              </div>
-            ) : (
-              <EmptyChartState running={running} />
-            )}
-          </div>
-
-          {/* Remaining capacity chart */}
-          {timeline.length > 0 && (
-            <div className="glass-card p-5 animate-fade-in-up" style={{ cursor: 'default' }}>
-              <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
-                Remaining Capacity
-              </h3>
-              <ResponsiveContainer width="100%" height={200}>
-                <AreaChart data={timeline} margin={{ top: 5, right: 10, left: 0, bottom: 5 }}>
-                  <defs>
-                    <linearGradient id="colorRemaining" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#00d4ff" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
-                  <XAxis dataKey="time" tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`} stroke="#5a6380" fontSize={12} />
-                  <YAxis stroke="#5a6380" fontSize={12} />
-                  <Tooltip content={<RichTooltip />} />
-                  <Area type="monotone" dataKey="remaining" name="Remaining" stroke="#00d4ff" strokeWidth={2} fillOpacity={1} fill="url(#colorRemaining)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
+        {/* ── Right panel (Memoized Chart) ─────────────────────────────── */}
+        <SimulationChart
+          timeline={timeline}
+          summary={summary}
+          running={running}
+          handleDownloadCSV={handleDownloadCSV}
+        />
       </div>
     </div>
   );

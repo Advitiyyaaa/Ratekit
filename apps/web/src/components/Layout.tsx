@@ -1,8 +1,10 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Gauge, Github, Menu, X, LogIn, Crown, User } from 'lucide-react';
+import { Github, Menu, X, LogIn, Crown, User, Sun, Moon } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../context/useAuth';
 import { authClient } from '../lib/auth-client';
+import { useTheme } from '../context/ThemeContext';
+import { Logo } from './Logo';
 
 // ─── Nav progress bar ────────────────────────────────────────────────────────
 
@@ -46,6 +48,7 @@ export function Header() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, isAdmin, isLoading } = useAuth();
+  const { theme, toggleTheme } = useTheme();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
@@ -77,20 +80,17 @@ export function Header() {
     <>
       <NavProgressBar />
       <header
-        className="sticky top-0 z-50 border-b transition-all duration-300"
+        className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? 'shadow-sm' : ''}`}
         style={{
-          background: scrolled ? 'rgba(10, 15, 30, 0.97)' : 'rgba(10, 15, 30, 0.85)',
+          background: scrolled ? 'var(--color-surface-elevated)' : 'var(--color-surface)',
+          opacity: 0.95,
           backdropFilter: 'blur(16px)',
-          borderColor: scrolled ? 'rgba(30, 42, 79, 0.8)' : 'rgba(30, 42, 79, 0.5)',
-          boxShadow: scrolled ? '0 4px 24px rgba(0,0,0,0.35)' : 'none',
         }}
       >
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-2 font-bold text-lg no-underline group">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent to-purple flex items-center justify-center transition-transform group-hover:scale-110 group-hover:shadow-[0_0_12px_rgba(0,212,255,0.4)]">
-              <Gauge size={18} className="text-base-950" />
-            </div>
+            <Logo size={24} className="transition-transform group-hover:scale-110" />
             <span className="text-text-primary">
               Rate<span className="text-accent">Kit</span>
             </span>
@@ -125,8 +125,15 @@ export function Header() {
             )}
           </nav>
 
-          {/* Right side: auth + github */}
+          {/* Right side: auth + github + theme */}
           <div className="flex items-center gap-2">
+            <button
+              onClick={toggleTheme}
+              className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors cursor-pointer border-none bg-transparent"
+              title="Toggle theme"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <a
               href="https://github.com"
               target="_blank"
@@ -145,7 +152,7 @@ export function Header() {
                     <button
                       id="nav-user-menu"
                       onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-accent to-purple flex items-center justify-center text-sm font-bold text-base-950 cursor-pointer border-none hover:ring-2 hover:ring-accent/50 transition-all"
+                      className="w-8 h-8 rounded-full bg-surface-card border border-border flex items-center justify-center text-sm font-bold text-text-primary cursor-pointer hover:border-accent transition-all"
                     >
                       {avatarLetter}
                     </button>
@@ -159,8 +166,7 @@ export function Header() {
                         />
                         {/* Dropdown */}
                         <div
-                          className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border py-1 shadow-2xl animate-slide-in-right"
-                          style={{ background: 'rgba(16, 22, 40, 0.98)', backdropFilter: 'blur(20px)' }}
+                          className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-surface-card shadow-lg py-1 animate-slide-in-right"
                         >
                           <div className="px-4 py-3 border-b border-border">
                             <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
@@ -177,7 +183,7 @@ export function Header() {
                             <Link
                               to="/admin"
                               onClick={() => setDropdownOpen(false)}
-                              className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-400 hover:bg-amber-500/10 transition-colors no-underline"
+                              className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-500 hover:bg-amber-500/10 transition-colors no-underline"
                             >
                               <Crown size={14} /> Admin Panel
                             </Link>
@@ -186,7 +192,7 @@ export function Header() {
                           <button
                             id="nav-signout"
                             onClick={handleSignOut}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:text-red-400 hover:bg-surface-elevated transition-colors cursor-pointer bg-transparent border-none text-left"
+                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:text-danger hover:bg-surface-elevated transition-colors cursor-pointer bg-transparent border-none text-left"
                           >
                             Sign out
                           </button>
@@ -198,7 +204,7 @@ export function Header() {
                   /* Sign in button */
                   <Link
                     to="/sign-in"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 transition-colors no-underline"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-soft border border-accent/30 text-accent text-sm font-medium hover:bg-accent-glow transition-colors no-underline"
                   >
                     <LogIn size={14} /> Sign in
                   </Link>
@@ -273,7 +279,7 @@ export function Footer() {
     <footer className="border-t border-border mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-text-muted text-sm">
-          <Gauge size={16} className="text-accent" />
+          <Logo size={16} />
           <span>Rate<span className="text-accent">Kit</span></span>
           <span className="ml-1 px-1.5 py-0.5 rounded-md bg-surface-card border border-border text-[10px] font-mono text-text-muted">
             v0.1.0

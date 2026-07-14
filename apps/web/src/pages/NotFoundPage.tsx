@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Gauge } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
+import { LogoBox } from '../components/Logo';
 
 /**
  * 404 Not Found page.
@@ -30,8 +31,8 @@ export function NotFoundPage() {
       <div className="relative z-10 text-center max-w-lg">
         {/* Logo */}
         <div className="flex items-center justify-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-accent to-purple flex items-center justify-center animate-float">
-            <Gauge size={24} className="text-base-950" />
+          <div className="animate-float">
+            <LogoBox size={56} />
           </div>
         </div>
 

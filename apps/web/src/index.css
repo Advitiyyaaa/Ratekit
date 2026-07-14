@@ -2,43 +2,54 @@
 
 /* ─── Custom Theme ──────────────────────────────────────────────────────── */
 @theme {
-  --color-base-50: #f0f4ff;
-  --color-base-100: #e0e8ff;
-  --color-base-200: #c1d0ff;
-  --color-base-300: #94acff;
-  --color-base-400: #6b85ff;
-  --color-base-500: #4f63ff;
-  --color-base-600: #3b44f5;
-  --color-base-700: #2e33d8;
-  --color-base-800: #272cae;
-  --color-base-900: #252b89;
-  --color-base-950: #0a0f1e;
-
-  --color-surface: #0f1629;
-  --color-surface-elevated: #161d35;
-  --color-surface-card: #1a2240;
-  --color-surface-hover: #1e2a4f;
-
+  /* Common acccent colors */
   --color-accent: #00d4ff;
   --color-accent-soft: #00d4ff22;
   --color-accent-glow: #00d4ff44;
-
   --color-purple: #7c5cff;
   --color-purple-soft: #7c5cff22;
-
   --color-success: #00e676;
   --color-danger: #ff5252;
   --color-warning: #ffab40;
+  
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+}
+
+:root {
+  /* LIGHT MODE (default) */
+  --color-base-50: #f8fafc;
+  --color-base-950: #ffffff;
+  
+  --color-surface: #f8fafc;
+  --color-surface-elevated: #ffffff;
+  --color-surface-card: #ffffff;
+  --color-surface-hover: #f1f5f9;
+
+  --color-text-primary: #0f172a;
+  --color-text-secondary: #334155;
+  --color-text-muted: #64748b;
+
+  --color-border: #e2e8f0;
+  --color-border-light: #cbd5e1;
+}
+
+.dark {
+  /* DARK MODE */
+  --color-base-50: #0a0a0a;
+  --color-base-950: #000000;
+  
+  --color-surface: #0a0a0a;
+  --color-surface-elevated: #111111;
+  --color-surface-card: #141414;
+  --color-surface-hover: #1a1a1a;
 
   --color-text-primary: #e8ecf4;
   --color-text-secondary: #8b95b0;
   --color-text-muted: #5a6380;
 
-  --color-border: #1e2a4f;
-  --color-border-light: #2a375f;
-
-  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --color-border: #222222;
+  --color-border-light: #333333;
 }
 
 /* ─── Base Styles ──────────────────────────────────────────────────────── */
