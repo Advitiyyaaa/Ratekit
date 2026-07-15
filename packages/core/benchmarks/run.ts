@@ -45,7 +45,7 @@ async function main() {
 
   const swlStore = new MemoryStore();
   const swlLimiter = new SlidingWindowLog(swlStore, {
-    maxRequests: 1_000_000,
+    maxRequests: 100,      // SWL is designed for low-volume, precision-critical limits
     windowMs: 60_000,
   });
   let swlCounter = 0;

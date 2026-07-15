@@ -67,25 +67,22 @@ export class SlidingWindowLog implements RateLimiter {
     // Check if we can allow the new request(s)
     const allowed = currentCount + points <= this.config.maxRequests;
 
-    if (allowed) {
-      // Add new timestamp entries
-      // First, rebuild the list with only valid entries
+    // Rebuild the list only if entries were evicted or new ones are being added
+    const needsRebuild = entries.length !== validEntries.length || allowed;
+
+    if (needsRebuild) {
+      // Clear and batch-write: one del + parallel lpush calls
       await this.store.del(storeKey);
-      for (const entry of validEntries) {
-        await this.store.lpush(storeKey, entry);
-      }
-      // Add new entries
-      for (let i = 0; i < points; i++) {
-        await this.store.lpush(storeKey, String(now));
-      }
-      await this.store.pexpire(storeKey, this.config.windowMs);
-    } else {
-      // Denied — still clean up expired entries
-      await this.store.del(storeKey);
-      for (const entry of validEntries) {
-        await this.store.lpush(storeKey, entry);
-      }
-      if (validEntries.length > 0) {
+
+      // Build the new entries list: valid entries + new timestamps (if allowed)
+      const newEntries = allowed
+        ? [...validEntries, ...Array.from({ length: points }, () => String(now))]
+        : validEntries;
+
+      // Push all entries concurrently instead of one-by-one awaited loop
+      await Promise.all(newEntries.map((entry) => this.store.lpush(storeKey, entry)));
+
+      if (newEntries.length > 0) {
         await this.store.pexpire(storeKey, this.config.windowMs);
       }
     }
@@ -94,14 +91,20 @@ export class SlidingWindowLog implements RateLimiter {
     const remaining = Math.max(0, this.config.maxRequests - currentCount - (allowed ? points : 0));
 
     let resetAt: number;
-    const allTimestamps = allowed
-      ? [...validEntries.map((e) => parseInt(e, 10)), now]
-      : validEntries.map((e) => parseInt(e, 10));
-
-    if (allTimestamps.length > 0) {
-      // Reset when the oldest entry expires out of the window
-      const oldest = Math.min(...allTimestamps);
-      resetAt = oldest + this.config.windowMs;
+    if (validEntries.length > 0) {
+      // Find oldest timestamp — entries are pushed left so oldest is at the end,
+      // but filtering may reorder, so scan for the minimum.
+      let oldest = Number.MAX_SAFE_INTEGER;
+      for (const e of validEntries) {
+        const ts = parseInt(e, 10);
+        if (ts < oldest) oldest = ts;
+      }
+      if (allowed) {
+        // The new timestamp(s) are always >= oldest, so oldest stays the same
+        resetAt = oldest + this.config.windowMs;
+      } else {
+        resetAt = oldest + this.config.windowMs;
+      }
     } else {
       resetAt = now + this.config.windowMs;
     }
