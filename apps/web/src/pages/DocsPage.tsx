@@ -42,25 +42,19 @@ function injectCopyButtons(container: HTMLElement) {
   });
 }
 
-// ─── On-this-page TOC ─────────────────────────────────────────────────────────
+// ─── Slugify helper ─────────────────────────────────────────────────────────
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9\s-]/g, '')
+    .replace(/\s+/g, '-');
+}
 
 interface Heading { id: string; text: string; level: number; }
 
-function extractHeadings(html: string): Heading[] {
-  const div = document.createElement('div');
-  div.innerHTML = html;
-  const headings: Heading[] = [];
-  div.querySelectorAll('h2, h3').forEach((el) => {
-    const text = el.textContent ?? '';
-    const id = text.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    headings.push({ id, text, level: el.tagName === 'H2' ? 2 : 3 });
-  });
-  return headings;
-}
-
 // ─── Sidebar section group ────────────────────────────────────────────────────
-
-
 
 function SidebarSection({ label, docs, currentSlug }: { label: string; docs: DocMeta[]; currentSlug?: string }) {
   const [open, setOpen] = useState(true);
@@ -107,33 +101,38 @@ export function DocsPage() {
     fetchDoc(slug)
       .then((d) => {
         setDoc(d);
-        setHeadings(extractHeadings(d.html));
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [slug]);
 
-  // Inject copy buttons after content renders
+  // Synchronize DOM heading IDs, copy buttons, and extract TOC items
   useEffect(() => {
-    if (contentRef.current) {
-      injectCopyButtons(contentRef.current);
-    }
-  }, [doc]);
+    if (!contentRef.current || !doc) return;
+    
+    // Inject copy buttons
+    injectCopyButtons(contentRef.current);
 
-  // Heading IDs: add to rendered HTML headings so anchor links work
-  useEffect(() => {
-    if (!contentRef.current) return;
-    contentRef.current.querySelectorAll('h2, h3').forEach((el) => {
-      const id = (el.textContent ?? '').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+    // Assign IDs to h2/h3 and build headings list
+    const els = Array.from(contentRef.current.querySelectorAll('h2, h3'));
+    const extracted: Heading[] = [];
+
+    els.forEach((el) => {
+      const text = el.textContent ?? '';
+      const id = slugify(text);
       el.id = id;
+      extracted.push({ id, text, level: el.tagName === 'H2' ? 2 : 3 });
     });
+
+    setHeadings(extracted);
   }, [doc]);
 
   // Track active heading via IntersectionObserver
   useEffect(() => {
-    if (!contentRef.current) return;
+    if (!contentRef.current || !doc) return;
     const els = Array.from(contentRef.current.querySelectorAll('h2, h3'));
     if (!els.length) return;
+
     const obs = new IntersectionObserver(
       (entries) => {
         const visible = entries.find((e) => e.isIntersecting);
@@ -143,6 +142,34 @@ export function DocsPage() {
     );
     els.forEach((el) => obs.observe(el));
     return () => obs.disconnect();
+  }, [doc]);
+
+  const scrollToHeading = (id: string) => {
+    let targetEl = document.getElementById(id);
+    if (!targetEl && contentRef.current) {
+      const allHeadings = Array.from(contentRef.current.querySelectorAll<HTMLElement>('h2, h3'));
+      targetEl = allHeadings.find((h) => slugify(h.textContent ?? '') === id) || null;
+    }
+    if (targetEl) {
+      const yOffset = -90;
+      const y = targetEl.getBoundingClientRect().top + window.pageYOffset + yOffset;
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+      setActiveHeading(id);
+    }
+  };
+
+  const handleHeadingClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault();
+    scrollToHeading(id);
+    window.history.pushState(null, '', `#${id}`);
+  };
+
+  // Auto-scroll if URL has hash on load
+  useEffect(() => {
+    if (!doc || !window.location.hash) return;
+    const targetId = window.location.hash.replace('#', '');
+    const t = setTimeout(() => scrollToHeading(targetId), 150);
+    return () => clearTimeout(t);
   }, [doc]);
 
   // Group docs by section
@@ -203,26 +230,29 @@ export function DocsPage() {
                 {/* On this page TOC */}
                 {headings.length > 0 && (
                   <aside className="hidden xl:block w-48 flex-shrink-0">
-                    <p className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">
-                      On this page
-                    </p>
-                    <nav className="flex flex-col gap-0.5">
-                      {headings.map((h) => (
-                        <a
-                          key={h.id}
-                          href={`#${h.id}`}
-                          className={`text-xs py-1 no-underline transition-colors block ${
-                            h.level === 3 ? 'pl-3' : ''
-                          } ${
-                            activeHeading === h.id
-                              ? 'text-accent font-medium'
-                              : 'text-text-muted hover:text-text-secondary'
-                          }`}
-                        >
-                          {h.text}
-                        </a>
-                      ))}
-                    </nav>
+                    <div className="sticky top-24">
+                      <p className="text-xs font-extrabold text-text-primary uppercase tracking-wider mb-3">
+                        On this page
+                      </p>
+                      <nav className="flex flex-col gap-0.5">
+                        {headings.map((h) => (
+                          <a
+                            key={h.id}
+                            href={`#${h.id}`}
+                            onClick={(e) => handleHeadingClick(e, h.id)}
+                            className={`text-xs py-1 no-underline transition-all block ${
+                              h.level === 3 ? 'pl-3' : ''
+                            } ${
+                              activeHeading === h.id
+                                ? 'text-text-primary font-bold underline'
+                                : 'text-text-muted hover:text-text-primary font-medium'
+                            }`}
+                          >
+                            {h.text}
+                          </a>
+                        ))}
+                      </nav>
+                    </div>
                   </aside>
                 )}
               </div>

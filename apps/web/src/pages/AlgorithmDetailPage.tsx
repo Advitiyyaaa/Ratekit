@@ -81,12 +81,12 @@ function ConfigRow({
 }) {
   const pct = ((value - field.min) / (field.max - field.min)) * 100;
   return (
-    <tr className="border-b border-border">
-      <td className="py-3 pr-4 font-mono text-accent text-sm">{field.name}</td>
-      <td className="py-3 pr-4 text-text-secondary text-sm">{field.defaultValue}</td>
-      <td className="py-3 pr-4 text-text-muted text-sm">{field.min}–{field.max}</td>
-      <td className="py-3 pr-8 text-text-secondary text-sm hidden md:table-cell">{field.description}</td>
-      <td className="py-3 w-40">
+    <tr className="border-b-2 border-border hover:bg-surface-hover transition-colors">
+      <td className="py-3 px-4 font-mono font-bold text-text-primary text-sm border-2 border-border">{field.name}</td>
+      <td className="py-3 px-4 font-mono text-text-secondary text-sm border-2 border-border">{field.defaultValue}</td>
+      <td className="py-3 px-4 font-mono text-text-muted text-sm border-2 border-border">{field.min}–{field.max}</td>
+      <td className="py-3 px-4 text-text-secondary text-sm hidden md:table-cell border-2 border-border">{field.description}</td>
+      <td className="py-3 px-4 w-48 border-2 border-border">
         <div className="flex items-center gap-2">
           <input
             type="range"
@@ -95,12 +95,13 @@ function ConfigRow({
             step={field.step}
             value={value}
             onChange={(e) => onChange(Number(e.target.value))}
-            className="flex-1 h-1 rounded-full appearance-none cursor-pointer"
+            className="rate-range flex-1"
             style={{
-              background: `linear-gradient(to right, var(--color-accent) ${pct}%, var(--color-surface) ${pct}%)`,
+              background: `linear-gradient(to right, var(--color-text-primary) 0%, var(--color-text-primary) ${pct}%, var(--color-surface-hover) ${pct}%, var(--color-surface-hover) 100%)`,
+              border: '2px solid var(--color-border)',
             }}
           />
-          <span className="text-accent font-mono text-xs w-8 text-right">{value}</span>
+          <span className="text-text-primary font-mono font-bold text-xs w-10 text-right">{value}</span>
         </div>
       </td>
     </tr>
@@ -241,17 +242,17 @@ export function AlgorithmDetailPage() {
         <TradeoffPanel text={algorithm.tradeoffs} />
 
         {/* Config reference with live sliders */}
-        <div className="mb-8">
-          <h2 className="text-lg font-semibold mb-3">Configuration</h2>
+        <div className="mb-8 brutal-card p-5 bg-surface border-2 border-border shadow-[4px_4px_0px_0px_var(--color-shadow)]">
+          <h2 className="text-xl font-bold mb-4 border-b-2 border-border pb-2 m-0">Configuration</h2>
           <div className="overflow-x-auto">
-            <table className="w-full text-sm border-collapse">
+            <table className="comparison-table w-full text-sm border-collapse">
               <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-2 pr-4 text-text-muted font-medium">Parameter</th>
-                  <th className="text-left py-2 pr-4 text-text-muted font-medium">Default</th>
-                  <th className="text-left py-2 pr-4 text-text-muted font-medium">Range</th>
-                  <th className="text-left py-2 pr-8 text-text-muted font-medium hidden md:table-cell">Description</th>
-                  <th className="text-left py-2 text-text-muted font-medium">Preview</th>
+                <tr>
+                  <th>Parameter</th>
+                  <th>Default</th>
+                  <th>Range</th>
+                  <th className="hidden md:table-cell">Description</th>
+                  <th>Preview</th>
                 </tr>
               </thead>
               <tbody>

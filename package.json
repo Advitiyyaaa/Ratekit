@@ -8,14 +8,13 @@
     "apps/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/core",
+    "build": "npm run build -w packages/core && npm run build -w apps/web",
     "test": "npm run test -w packages/core",
     "bench": "npm run bench -w packages/core",
     "typecheck": "tsc --build",
     "lint": "eslint . --ext .ts,.tsx",
-    "dev:api": "npm run dev -w apps/api",
     "dev:web": "npm run dev -w apps/web",
-    "dev": "npm run dev:api & npm run dev:web"
+    "dev": "npm run dev -w apps/web"
   },
   "devDependencies": {
     "typescript": "^5.8.3"

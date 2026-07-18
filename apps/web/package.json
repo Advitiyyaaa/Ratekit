@@ -10,9 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "axios": "^1.9.0",
-    "better-auth": "^1.6.23",
+    "gray-matter": "^4.0.3",
     "lucide-react": "^0.515.0",
+    "marked": "^15.0.7",
+    "ratekit": "*",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-markdown": "^10.1.0",

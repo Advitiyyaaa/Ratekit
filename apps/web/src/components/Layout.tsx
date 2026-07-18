@@ -1,8 +1,6 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Github, Menu, X, LogIn, Crown, User, Sun, Moon } from 'lucide-react';
+import { Link, useLocation } from 'react-router-dom';
+import { Github, Menu, X, Sun, Moon } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useAuth } from '../context/useAuth';
-import { authClient } from '../lib/auth-client';
 import { useTheme } from '../context/ThemeContext';
 import { Logo } from './Logo';
 
@@ -42,10 +40,7 @@ function NavProgressBar() {
 // ─── Header ───────────────────────────────────────────────────────────────────
 export function Header() {
   const location = useLocation();
-  const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const { user, isAdmin, isLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
 
   const navLinks = [
@@ -59,14 +54,6 @@ export function Header() {
     if (path === '/') return location.pathname === '/';
     return location.pathname.startsWith(path);
   };
-
-  async function handleSignOut() {
-    setDropdownOpen(false);
-    await authClient.signOut();
-    navigate('/');
-  }
-
-  const avatarLetter = user?.name?.[0]?.toUpperCase() ?? user?.email?.[0]?.toUpperCase() ?? '?';
 
   return (
     <>
@@ -94,8 +81,8 @@ export function Header() {
         >
           <div className="px-4 h-14 flex items-center justify-between">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 font-black text-lg no-underline group">
-              <Logo size={24} className="transition-transform group-hover:scale-110" />
+            <Link to="/" className="flex items-center gap-1.5 font-black text-lg no-underline group">
+              <Logo size={22} className="transition-transform group-hover:scale-110" />
               <span className="text-text-primary">
                 Rate<span className="text-blue-500">Kit</span>
               </span>
@@ -116,21 +103,9 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  className={`px-3 py-1.5 font-bold text-sm transition-all no-underline border-2 border-transparent flex items-center gap-1.5 ${
-                    isActive('/admin')
-                      ? 'bg-text-primary text-amber-400 border-border'
-                      : 'text-amber-500 hover:bg-surface-hover hover:border-border hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px]'
-                  }`}
-                >
-                  <Crown size={13} /> Admin
-                </Link>
-              )}
             </nav>
 
-            {/* Right side: auth + github + theme */}
+            {/* Right side: github + theme */}
             <div className="flex items-center gap-3">
               <button
                 onClick={toggleTheme}
@@ -147,75 +122,6 @@ export function Header() {
               >
                 <Github size={20} />
               </a>
-
-              {/* Auth area */}
-              {!isLoading && (
-                <>
-                  {user ? (
-                    /* User avatar dropdown */
-                    <div className="relative">
-                      <button
-                        id="nav-user-menu"
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="w-8 h-8 bg-surface-card border-2 border-border flex items-center justify-center text-sm font-bold text-text-primary cursor-pointer hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px] transition-all"
-                      >
-                        {avatarLetter}
-                      </button>
-
-                      {dropdownOpen && (
-                        <>
-                          {/* Backdrop */}
-                          <div
-                            className="fixed inset-0 z-40"
-                            onClick={() => setDropdownOpen(false)}
-                          />
-                          {/* Dropdown */}
-                          <div
-                            className="absolute right-0 top-12 z-50 w-52 border-2 border-border bg-surface-card shadow-[4px_4px_0px_0px_var(--color-shadow)] py-1 animate-slide-in-right"
-                          >
-                            <div className="px-4 py-3 border-b-2 border-border">
-                              <p className="text-sm font-bold text-text-primary truncate">{user.name}</p>
-                              <p className="text-xs font-medium text-text-muted truncate">{user.email}</p>
-                            </div>
-                            <Link
-                              to="/account"
-                              onClick={() => setDropdownOpen(false)}
-                              className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-text-primary hover:bg-surface-hover transition-colors no-underline"
-                            >
-                              <User size={14} /> Account
-                            </Link>
-                            {isAdmin && (
-                              <Link
-                                to="/admin"
-                                onClick={() => setDropdownOpen(false)}
-                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-amber-500 hover:bg-surface-hover transition-colors no-underline"
-                              >
-                                <Crown size={14} /> Admin Panel
-                              </Link>
-                            )}
-                            <div className="border-t-2 border-border mt-1" />
-                            <button
-                              id="nav-signout"
-                              onClick={handleSignOut}
-                              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-bold text-danger hover:bg-surface-hover transition-colors cursor-pointer bg-transparent border-none text-left"
-                            >
-                              Sign out
-                            </button>
-                          </div>
-                        </>
-                      )}
-                    </div>
-                  ) : (
-                    /* Sign in button */
-                    <Link
-                      to="/sign-in"
-                      className="flex items-center gap-1.5 px-3 py-1.5 bg-text-primary border-2 border-border text-base-950 text-sm font-bold hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[0px_0px_0px_0px_var(--color-shadow)] shadow-[2px_2px_0px_0px_var(--color-shadow)] transition-all no-underline"
-                    >
-                      <LogIn size={14} /> Sign in
-                    </Link>
-                  )}
-                </>
-              )}
 
               {/* Mobile toggle */}
               <button
@@ -244,32 +150,6 @@ export function Header() {
                   {link.label}
                 </Link>
               ))}
-              {isAdmin && (
-                <Link
-                  to="/admin"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-amber-500 hover:bg-surface-hover hover:border-border border-2 border-transparent no-underline transition-colors"
-                >
-                  <Crown size={13} /> Admin
-                </Link>
-              )}
-              {!user ? (
-                <Link
-                  to="/sign-in"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold bg-text-primary text-base-950 border-2 border-border no-underline transition-colors mt-2"
-                >
-                  <LogIn size={14} /> Sign in
-                </Link>
-              ) : (
-                <Link
-                  to="/account"
-                  onClick={() => setMobileOpen(false)}
-                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-text-primary hover:bg-surface-hover hover:border-border border-2 border-transparent no-underline transition-colors mt-1"
-                >
-                  <User size={14} /> Account
-                </Link>
-              )}
             </nav>
           )}
         </header>
@@ -287,8 +167,12 @@ export function Footer() {
     <footer className="border-t-2 border-border bg-surface mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-text-muted text-sm">
-          <Logo size={16} />
-          <span>Rate<span className="text-text-primary font-bold">Kit</span></span>
+          <Link to="/" className="flex items-center gap-1.5 font-black text-lg no-underline group">
+            <Logo size={22} className="transition-transform group-hover:scale-110" />
+            <span className="text-text-primary">
+              Rate<span className="text-blue-500">Kit</span>
+            </span>
+          </Link>
           <span className="ml-1 px-1.5 py-0.5 rounded-none bg-surface-card border border-border text-[10px] font-mono text-text-primary font-bold shadow-[1px_1px_0px_0px_var(--color-shadow)]">
             v0.1.1
           </span>

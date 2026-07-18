@@ -52,11 +52,6 @@ const features = [
   },
 ];
 
-const stats = [
-  { label: 'Algorithms', value: 5 },
-  { label: 'Storage Backends', value: 2 },
-  { label: 'Runtime Dependencies', value: 0 },
-];
 
 const comparisonRows = [
   { name: 'Token Bucket',       slug: 'token-bucket',           complexity: 'O(1)', burst: 'Excellent', accuracy: 'Good',      recommended: false },
@@ -66,56 +61,7 @@ const comparisonRows = [
   { name: 'Sliding Window Counter', slug: 'sliding-window-counter', complexity: 'O(1)', burst: 'Smoothed', accuracy: 'Good',  recommended: true  },
 ];
 
-// ─── Hooks ───────────────────────────────────────────────────────────────────
-
-function useCountUp(target: number, duration = 1200, trigger: boolean) {
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!trigger) return;
-    if (target === 0) { setCount(0); return; }
-    let start = 0;
-    const step = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [target, duration, trigger]);
-  return count;
-}
-
-function useInView(ref: React.RefObject<Element | null>) {
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) { setInView(true); obs.disconnect(); }
-    }, { threshold: 0.3 });
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, [ref]);
-  return inView;
-}
-
 // ─── Sub-components ──────────────────────────────────────────────────────────
-
-function StatItem({ value, label }: { value: number; label: string }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref);
-  const count = useCountUp(value, 800, inView);
-  return (
-    <div ref={ref} className="flex flex-col items-center gap-1">
-      <span
-        className="text-4xl font-extrabold gradient-text"
-        style={{ animation: inView ? 'count-up 0.5s ease-out forwards' : 'none' }}
-      >
-        {count}{value === 0 ? '' : '+'}
-      </span>
-      <span className="text-text-muted text-sm">{label}</span>
-    </div>
-  );
-}
 
 function TerminalInstall() {
   const [copied, setCopied] = useState(false);
@@ -162,8 +108,6 @@ function BurstBadge({ burst }: { burst: string }) {
 
 export function HomePage() {
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
-  const statsRef = useRef<HTMLDivElement>(null);
-  const statsInView = useInView(statsRef);
 
   useEffect(() => {
     fetchAlgorithms().then(setAlgorithms).catch(console.error);
@@ -194,7 +138,7 @@ export function HomePage() {
           <div className="grid md:grid-cols-2 gap-12 items-center">
             {/* Left: Text */}
             <div className="animate-fade-in-up">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-light text-sm text-text-secondary mb-6"
+              <div className="inline-flex items-center gap-2 px-3 py-1 border border-2 text-sm text-text-secondary mb-6"
                 style={{ background: 'rgba(0,212,255,0.04)' }}>
                 <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
                 v0.1.1 — Now available
@@ -227,28 +171,10 @@ export function HomePage() {
                   <div className="w-3 h-3 rounded-full bg-success opacity-60" />
                   <span className="ml-3 text-xs text-text-muted font-mono">example.ts</span>
                 </div>
-                <CodeBlock code={heroCode} showCopy={true} />
+                <CodeBlock code={heroCode} />
               </div>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* ── Stats Bar ──────────────────────────────────────────────────────── */}
-      <section className="border-y border-border bg-surface">
-        <div
-          ref={statsRef}
-          className="max-w-6xl mx-auto px-4 py-8 grid grid-cols-3 gap-6 divide-x divide-border"
-        >
-          {statsInView && stats.map((s) => (
-            <StatItem key={s.label} value={s.value} label={s.label} />
-          ))}
-          {!statsInView && stats.map((s) => (
-            <div key={s.label} className="flex flex-col items-center gap-1">
-              <span className="text-4xl font-extrabold gradient-text">—</span>
-              <span className="text-text-muted text-sm">{s.label}</span>
-            </div>
-          ))}
         </div>
       </section>
 

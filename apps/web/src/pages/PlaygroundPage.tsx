@@ -281,7 +281,6 @@ export function PlaygroundPage() {
   const [running, setRunning] = useState(false);
   const [hasRun, setHasRun] = useState(false);
   const [shareToast, setShareToast] = useState(false);
-  const [runProgress, setRunProgress] = useState(0);
 
   useEffect(() => {
     fetchAlgorithms().then(setAlgorithms).catch(console.error);
@@ -304,13 +303,10 @@ export function PlaygroundPage() {
     setConfig((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  // Run simulation with animated progress bar
+  // Run simulation manually
   const handleRun = async () => {
     setRunning(true);
     setHasRun(true);
-    setRunProgress(20);
-    const t1 = setTimeout(() => setRunProgress(60), 200);
-    const t2 = setTimeout(() => setRunProgress(85), 500);
     try {
       const result = await runSimulation({
         algorithm: selectedSlug,
@@ -318,25 +314,25 @@ export function PlaygroundPage() {
         totalRequests,
         requestsPerSecond,
       });
-      setRunProgress(100);
-      setTimeout(() => setRunProgress(0), 400);
       setTimeline(result.timeline);
       setSummary(result.summary);
     } catch (error) {
       console.error('Simulation failed:', error);
-      setRunProgress(0);
     } finally {
-      clearTimeout(t1);
-      clearTimeout(t2);
       setRunning(false);
     }
   };
+
+  // Auto-run simulation when algorithm or configuration is loaded or updated
+  useEffect(() => {
+    if (!selectedAlgorithm || Object.keys(config).length === 0) return;
+    handleRun();
+  }, [selectedSlug, config, totalRequests, requestsPerSecond]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleReset = () => {
     setTimeline([]);
     setSummary(null);
     setHasRun(false);
-    setRunProgress(0);
   };
 
   // Share: encode current setup into URL
