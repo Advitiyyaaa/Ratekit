@@ -17,17 +17,27 @@ export function CodeBlock({ code, language = 'typescript', showCopy = true }: Co
   };
 
   return (
-    <div className="relative group/code rounded-lg overflow-hidden">
+    <div className="relative group/code overflow-hidden">
       {showCopy && (
         <button
           onClick={handleCopy}
-          className="absolute top-2 right-2 p-1.5 rounded-md bg-surface-elevated border border-border text-text-muted hover:text-text-primary hover:border-accent transition-all opacity-0 group-hover/code:opacity-100 cursor-pointer z-10"
+          className="absolute top-2 right-2 px-2 py-1 text-xs font-bold rounded-none bg-surface border-2 border-border text-text-primary hover:bg-surface-hover transition-all opacity-90 hover:opacity-100 shadow-[2px_2px_0px_0px_var(--color-shadow)] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer z-10 flex items-center gap-1.5"
           title="Copy to clipboard"
         >
-          {copied ? <Check size={14} className="text-success" /> : <Copy size={14} />}
+          {copied ? (
+            <>
+              <Check size={14} className="text-success" />
+              <span>Copied!</span>
+            </>
+          ) : (
+            <>
+              <Copy size={14} />
+              <span>Copy</span>
+            </>
+          )}
         </button>
       )}
-      <pre className="m-0 rounded-lg">
+      <pre className="m-0">
         <code className={`language-${language}`}>{code}</code>
       </pre>
     </div>

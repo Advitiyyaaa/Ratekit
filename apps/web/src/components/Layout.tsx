@@ -40,21 +40,13 @@ function NavProgressBar() {
 }
 
 // ─── Header ───────────────────────────────────────────────────────────────────
-
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const { user, isAdmin, isLoading } = useAuth();
   const { theme, toggleTheme } = useTheme();
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 50);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const navLinks = [
     { to: '/', label: 'Home' },
@@ -78,211 +70,227 @@ export function Header() {
 
   return (
     <>
-      <NavProgressBar />
-      <header
-        className={`sticky top-0 z-50 border-b transition-all duration-300 ${scrolled ? 'shadow-sm' : ''}`}
+      {/* CSS grid background (Global) */}
+      <div
+        className="fixed inset-0 pointer-events-none opacity-[0.035] -z-10"
         style={{
-          background: scrolled ? 'var(--color-surface-elevated)' : 'var(--color-surface)',
-          opacity: 0.95,
-          backdropFilter: 'blur(16px)',
+          backgroundImage: `
+            linear-gradient(var(--color-accent) 1px, transparent 1px),
+            linear-gradient(90deg, var(--color-accent) 1px, transparent 1px)
+          `,
+          backgroundSize: '60px 60px',
         }}
-      >
-        <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 font-bold text-lg no-underline group">
-            <Logo size={24} className="transition-transform group-hover:scale-110" />
-            <span className="text-text-primary">
-              Rate<span className="text-accent">Kit</span>
-            </span>
-          </Link>
+      />
+      <div className="blue-glow-bg fixed inset-0 pointer-events-none -z-10" />
+      <NavProgressBar />
+      
+      {/* Container for non-sticky floating positioning */}
+      <div className="relative mt-4 mb-4 z-50 flex justify-center px-4">
+        <header
+          className="w-full max-w-7xl bg-[var(--color-surface)] border-2 border-[var(--color-border)] transition-all"
+          style={{
+            boxShadow: '4px 4px 0px 0px var(--color-shadow)',
+          }}
+        >
+          <div className="px-4 h-14 flex items-center justify-between">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-2 font-black text-lg no-underline group">
+              <Logo size={24} className="transition-transform group-hover:scale-110" />
+              <span className="text-text-primary">
+                Rate<span className="text-blue-500">Kit</span>
+              </span>
+            </Link>
 
-          {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
-                  isActive(link.to)
-                    ? 'text-accent bg-accent-soft'
-                    : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated'
-                }`}
+            {/* Desktop nav */}
+            <nav className="hidden md:flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className={`px-3 py-1.5 font-bold text-sm transition-all no-underline border-2 border-transparent ${
+                    isActive(link.to)
+                      ? 'nav-link-active border-border'
+                      : 'text-text-primary hover:bg-surface-hover hover:border-border hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px]'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  className={`px-3 py-1.5 font-bold text-sm transition-all no-underline border-2 border-transparent flex items-center gap-1.5 ${
+                    isActive('/admin')
+                      ? 'bg-text-primary text-amber-400 border-border'
+                      : 'text-amber-500 hover:bg-surface-hover hover:border-border hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px]'
+                  }`}
+                >
+                  <Crown size={13} /> Admin
+                </Link>
+              )}
+            </nav>
+
+            {/* Right side: auth + github + theme */}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={toggleTheme}
+                className="p-1.5 border-2 border-transparent hover:border-border text-text-primary hover:bg-surface-hover transition-all cursor-pointer bg-transparent hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px]"
+                title="Toggle theme"
               >
-                {link.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors no-underline flex items-center gap-1.5 ${
-                  isActive('/admin')
-                    ? 'text-amber-400 bg-amber-500/10'
-                    : 'text-amber-500/70 hover:text-amber-400 hover:bg-amber-500/10'
-                }`}
+                {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+              </button>
+              <a
+                href="https://github.com/Advitiyyaaa/Ratekit"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-1.5 border-2 border-transparent hover:border-border text-text-primary hover:bg-surface-hover transition-all cursor-pointer bg-transparent hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px]"
               >
-                <Crown size={13} /> Admin
-              </Link>
-            )}
-          </nav>
+                <Github size={20} />
+              </a>
 
-          {/* Right side: auth + github + theme */}
-          <div className="flex items-center gap-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors cursor-pointer border-none bg-transparent"
-              title="Toggle theme"
-            >
-              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-            </button>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors"
-            >
-              <Github size={20} />
-            </a>
+              {/* Auth area */}
+              {!isLoading && (
+                <>
+                  {user ? (
+                    /* User avatar dropdown */
+                    <div className="relative">
+                      <button
+                        id="nav-user-menu"
+                        onClick={() => setDropdownOpen(!dropdownOpen)}
+                        className="w-8 h-8 bg-surface-card border-2 border-border flex items-center justify-center text-sm font-bold text-text-primary cursor-pointer hover:shadow-[2px_2px_0px_0px_var(--color-shadow)] hover:-translate-y-[2px] hover:-translate-x-[2px] transition-all"
+                      >
+                        {avatarLetter}
+                      </button>
 
-            {/* Auth area */}
-            {!isLoading && (
-              <>
-                {user ? (
-                  /* User avatar dropdown */
-                  <div className="relative">
-                    <button
-                      id="nav-user-menu"
-                      onClick={() => setDropdownOpen(!dropdownOpen)}
-                      className="w-8 h-8 rounded-full bg-surface-card border border-border flex items-center justify-center text-sm font-bold text-text-primary cursor-pointer hover:border-accent transition-all"
-                    >
-                      {avatarLetter}
-                    </button>
-
-                    {dropdownOpen && (
-                      <>
-                        {/* Backdrop */}
-                        <div
-                          className="fixed inset-0 z-40"
-                          onClick={() => setDropdownOpen(false)}
-                        />
-                        {/* Dropdown */}
-                        <div
-                          className="absolute right-0 top-10 z-50 w-52 rounded-xl border border-border bg-surface-card shadow-lg py-1 animate-slide-in-right"
-                        >
-                          <div className="px-4 py-3 border-b border-border">
-                            <p className="text-sm font-medium text-text-primary truncate">{user.name}</p>
-                            <p className="text-xs text-text-muted truncate">{user.email}</p>
-                          </div>
-                          <Link
-                            to="/account"
+                      {dropdownOpen && (
+                        <>
+                          {/* Backdrop */}
+                          <div
+                            className="fixed inset-0 z-40"
                             onClick={() => setDropdownOpen(false)}
-                            className="flex items-center gap-2 px-4 py-2.5 text-sm text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors no-underline"
+                          />
+                          {/* Dropdown */}
+                          <div
+                            className="absolute right-0 top-12 z-50 w-52 border-2 border-border bg-surface-card shadow-[4px_4px_0px_0px_var(--color-shadow)] py-1 animate-slide-in-right"
                           >
-                            <User size={14} /> Account
-                          </Link>
-                          {isAdmin && (
+                            <div className="px-4 py-3 border-b-2 border-border">
+                              <p className="text-sm font-bold text-text-primary truncate">{user.name}</p>
+                              <p className="text-xs font-medium text-text-muted truncate">{user.email}</p>
+                            </div>
                             <Link
-                              to="/admin"
+                              to="/account"
                               onClick={() => setDropdownOpen(false)}
-                              className="flex items-center gap-2 px-4 py-2.5 text-sm text-amber-500 hover:bg-amber-500/10 transition-colors no-underline"
+                              className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-text-primary hover:bg-surface-hover transition-colors no-underline"
                             >
-                              <Crown size={14} /> Admin Panel
+                              <User size={14} /> Account
                             </Link>
-                          )}
-                          <div className="border-t border-border mt-1" />
-                          <button
-                            id="nav-signout"
-                            onClick={handleSignOut}
-                            className="flex items-center gap-2 w-full px-4 py-2.5 text-sm text-text-secondary hover:text-danger hover:bg-surface-elevated transition-colors cursor-pointer bg-transparent border-none text-left"
-                          >
-                            Sign out
-                          </button>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ) : (
-                  /* Sign in button */
-                  <Link
-                    to="/sign-in"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent-soft border border-accent/30 text-accent text-sm font-medium hover:bg-accent-glow transition-colors no-underline"
-                  >
-                    <LogIn size={14} /> Sign in
-                  </Link>
-                )}
-              </>
-            )}
+                            {isAdmin && (
+                              <Link
+                                to="/admin"
+                                onClick={() => setDropdownOpen(false)}
+                                className="flex items-center gap-2 px-4 py-2.5 text-sm font-bold text-amber-500 hover:bg-surface-hover transition-colors no-underline"
+                              >
+                                <Crown size={14} /> Admin Panel
+                              </Link>
+                            )}
+                            <div className="border-t-2 border-border mt-1" />
+                            <button
+                              id="nav-signout"
+                              onClick={handleSignOut}
+                              className="flex items-center gap-2 w-full px-4 py-2.5 text-sm font-bold text-danger hover:bg-surface-hover transition-colors cursor-pointer bg-transparent border-none text-left"
+                            >
+                              Sign out
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    /* Sign in button */
+                    <Link
+                      to="/sign-in"
+                      className="flex items-center gap-1.5 px-3 py-1.5 bg-text-primary border-2 border-border text-base-950 text-sm font-bold hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[0px_0px_0px_0px_var(--color-shadow)] shadow-[2px_2px_0px_0px_var(--color-shadow)] transition-all no-underline"
+                    >
+                      <LogIn size={14} /> Sign in
+                    </Link>
+                  )}
+                </>
+              )}
 
-            {/* Mobile toggle */}
-            <button
-              className="md:hidden p-2 rounded-lg text-text-secondary hover:text-text-primary hover:bg-surface-elevated transition-colors bg-transparent border-none cursor-pointer"
-              onClick={() => setMobileOpen(!mobileOpen)}
-            >
-              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+              {/* Mobile toggle */}
+              <button
+                className="md:hidden p-1.5 border-2 border-transparent hover:border-border text-text-primary hover:bg-surface-hover transition-all bg-transparent cursor-pointer"
+                onClick={() => setMobileOpen(!mobileOpen)}
+              >
+                {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* Mobile nav */}
-        {mobileOpen && (
-          <nav className="md:hidden border-t border-border px-4 py-3 flex flex-col gap-1 animate-fade-in">
-            {navLinks.map((link) => (
-              <Link
-                key={link.to}
-                to={link.to}
-                onClick={() => setMobileOpen(false)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors no-underline ${
-                  isActive(link.to)
-                    ? 'text-accent bg-accent-soft'
-                    : 'text-text-secondary hover:text-text-primary'
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-            {isAdmin && (
-              <Link
-                to="/admin"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-amber-400 hover:bg-amber-500/10 no-underline transition-colors"
-              >
-                <Crown size={13} /> Admin
-              </Link>
-            )}
-            {!user ? (
-              <Link
-                to="/sign-in"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-accent hover:bg-accent-soft no-underline transition-colors mt-1"
-              >
-                <LogIn size={14} /> Sign in
-              </Link>
-            ) : (
-              <Link
-                to="/account"
-                onClick={() => setMobileOpen(false)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-sm font-medium text-text-secondary hover:text-text-primary no-underline transition-colors mt-1"
-              >
-                <User size={14} /> Account
-              </Link>
-            )}
-          </nav>
-        )}
-      </header>
+          {/* Mobile nav */}
+          {mobileOpen && (
+            <nav className="md:hidden border-t-2 border-border px-4 py-3 flex flex-col gap-1 bg-surface-card">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  onClick={() => setMobileOpen(false)}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-bold no-underline border-2 border-transparent transition-colors ${
+                    isActive(link.to)
+                      ? 'bg-text-primary text-surface border-border'
+                      : 'text-text-primary hover:bg-surface-hover hover:border-border'
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              {isAdmin && (
+                <Link
+                  to="/admin"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-amber-500 hover:bg-surface-hover hover:border-border border-2 border-transparent no-underline transition-colors"
+                >
+                  <Crown size={13} /> Admin
+                </Link>
+              )}
+              {!user ? (
+                <Link
+                  to="/sign-in"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold bg-text-primary text-base-950 border-2 border-border no-underline transition-colors mt-2"
+                >
+                  <LogIn size={14} /> Sign in
+                </Link>
+              ) : (
+                <Link
+                  to="/account"
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm font-bold text-text-primary hover:bg-surface-hover hover:border-border border-2 border-transparent no-underline transition-colors mt-1"
+                >
+                  <User size={14} /> Account
+                </Link>
+              )}
+            </nav>
+          )}
+        </header>
+      </div>
+      {/* End of Layout */}
     </>
   );
 }
+
 
 // ─── Footer ───────────────────────────────────────────────────────────────────
 
 export function Footer() {
   return (
-    <footer className="border-t border-border mt-auto">
+    <footer className="border-t-2 border-border bg-surface mt-auto">
       <div className="max-w-6xl mx-auto px-4 py-8 flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-2 text-text-muted text-sm">
           <Logo size={16} />
-          <span>Rate<span className="text-accent">Kit</span></span>
-          <span className="ml-1 px-1.5 py-0.5 rounded-md bg-surface-card border border-border text-[10px] font-mono text-text-muted">
-            v0.1.0
+          <span>Rate<span className="text-text-primary font-bold">Kit</span></span>
+          <span className="ml-1 px-1.5 py-0.5 rounded-none bg-surface-card border border-border text-[10px] font-mono text-text-primary font-bold shadow-[1px_1px_0px_0px_var(--color-shadow)]">
+            v0.1.1
           </span>
           <span className="text-text-muted">— Rate Limiting Made Simple</span>
         </div>

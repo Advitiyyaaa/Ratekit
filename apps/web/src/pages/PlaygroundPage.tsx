@@ -29,7 +29,7 @@ function RichTooltip({ active, payload, label }: {
   if (!active || !payload?.length) return null;
   const time = typeof label === 'number' ? `${(label / 1000).toFixed(2)}s` : label;
   return (
-    <div className="rounded-xl border border-border p-3 text-xs shadow-2xl" style={{ background: '#141c33', minWidth: 140 }}>
+    <div className="p-3 text-xs border-2 border-border bg-surface text-text-primary shadow-[4px_4px_0px_0px_var(--color-shadow)] min-w-[140px]">
       <p className="font-mono text-text-muted mb-2">⏱ {time}</p>
       {payload.map((p) => (
         <div key={p.name} className="flex items-center justify-between gap-4 mb-1">
@@ -47,24 +47,24 @@ function EmptyChartState({ running }: { running: boolean }) {
   return (
     <div className="flex flex-col items-center justify-center h-[350px] gap-4 text-text-muted">
       <svg width="120" height="80" viewBox="0 0 120 80" fill="none">
-        <rect x="0" y="60" width="120" height="1" stroke="#1e2a4f" strokeWidth="1" />
+        <rect x="0" y="60" width="120" height="1" stroke="var(--color-border)" strokeWidth="1" />
         <polyline
           points="0,60 20,60 35,60 55,60 75,60 95,60 120,60"
-          stroke="#1e2a4f"
+          stroke="var(--color-border)"
           strokeWidth="2"
           strokeDasharray="5 5"
           fill="none"
         />
         <path
           d="M 0 55 Q 20 40 35 42 Q 50 44 55 38 Q 65 28 75 20 Q 90 10 120 8"
-          stroke="#00d4ff"
+          stroke="var(--color-text-primary)"
           strokeWidth="2"
           strokeDasharray="6 4"
           fill="none"
           opacity="0.4"
         />
-        <circle cx="60" cy="35" r="14" fill="rgba(0,212,255,0.08)" stroke="#00d4ff44" strokeWidth="1" />
-        <path d="M55 35 L59 39 L65 31" stroke="#00d4ff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
+        <circle cx="60" cy="35" r="14" fill="var(--color-surface-hover)" stroke="var(--color-border)" strokeWidth="1" />
+        <path d="M55 35 L59 39 L65 31" stroke="var(--color-text-primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" opacity="0.5" />
       </svg>
       <div className="text-center">
         <p className="text-sm font-medium text-text-secondary mb-1">
@@ -117,10 +117,10 @@ function SliderWithTooltip({
 }) {
   const pct = ((value - min) / (max - min)) * 100;
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-3">
       <div className="flex justify-between items-center">
         <label className="text-sm font-medium text-text-primary" htmlFor={id}>{label}</label>
-        <span className="text-sm font-mono text-accent">{value}{unit}</span>
+        <span className="text-sm font-mono text-text-primary font-bold">{value}{unit}</span>
       </div>
       <div className="relative">
         <input
@@ -131,9 +131,10 @@ function SliderWithTooltip({
           step={step}
           value={value}
           onChange={(e) => onChange(Number(e.target.value))}
-          className="w-full h-1.5 rounded-full appearance-none cursor-pointer"
+          className="rate-range"
           style={{
-            background: `linear-gradient(to right, var(--color-accent) 0%, var(--color-accent) ${pct}%, var(--color-surface) ${pct}%, var(--color-surface) 100%)`,
+            background: `linear-gradient(to right, var(--color-text-primary) 0%, var(--color-text-primary) ${pct}%, var(--color-surface-hover) ${pct}%, var(--color-surface-hover) 100%)`,
+            border: '2px solid var(--color-border)',
           }}
         />
         {/* Min/Max labels */}
@@ -157,37 +158,37 @@ const SimulationChart = memo(function SimulationChart({
   handleDownloadCSV: () => void;
 }) {
   return (
-    <div className="lg:col-span-2 space-y-5">
+    <div className="space-y-5">
       {/* Summary cards */}
       {summary && (
         <div className="grid grid-cols-3 gap-4 animate-fade-in-up">
-          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-            <div className="text-2xl font-bold text-success">
+          <div className="brutal-card p-4 text-center bg-surface" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-black text-success">
               <AnimatedNumber value={summary.totalAllowed} />
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Allowed</div>
+            <div className="text-xs font-bold text-text-muted uppercase tracking-wider mt-1">Allowed</div>
           </div>
-          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-            <div className="text-2xl font-bold text-danger">
+          <div className="brutal-card p-4 text-center bg-surface" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-black text-danger">
               <AnimatedNumber value={summary.totalDenied} />
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Denied</div>
+            <div className="text-xs font-bold text-text-muted uppercase tracking-wider mt-1">Denied</div>
           </div>
-          <div className="glass-card p-4 text-center" style={{ cursor: 'default' }}>
-            <div className="text-2xl font-bold text-accent">
+          <div className="brutal-card p-4 text-center bg-surface" style={{ cursor: 'default' }}>
+            <div className="text-2xl font-black text-text-primary">
               <AnimatedNumber
                 value={summary.totalAllowed + summary.totalDenied > 0
                   ? Math.round((summary.totalAllowed / (summary.totalAllowed + summary.totalDenied)) * 100)
                   : 0}
               />%
             </div>
-            <div className="text-xs text-text-muted uppercase tracking-wider mt-1">Pass Rate</div>
+            <div className="text-xs font-bold text-text-muted uppercase tracking-wider mt-1">Pass Rate</div>
           </div>
         </div>
       )}
 
       {/* Main chart */}
-      <div className="glass-card p-5" style={{ cursor: 'default' }}>
+      <div className="brutal-card p-5 bg-surface" style={{ cursor: 'default' }}>
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider">
             Requests Over Time
@@ -212,14 +213,14 @@ const SimulationChart = memo(function SimulationChart({
                     <stop offset="95%" stopColor="#ff5252" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
+                <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.25} />
                 <XAxis
                   dataKey="time"
                   tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`}
-                  stroke="#5a6380"
+                  stroke="var(--color-text-muted)"
                   fontSize={12}
                 />
-                <YAxis stroke="#5a6380" fontSize={12} />
+                <YAxis stroke="var(--color-text-muted)" fontSize={12} />
                 <Tooltip content={<RichTooltip />} />
                 <Legend />
                 <Area type="monotone" dataKey="allowed" name="Allowed" stroke="#00e676" strokeWidth={2} fillOpacity={1} fill="url(#colorAllowed)" />
@@ -234,7 +235,7 @@ const SimulationChart = memo(function SimulationChart({
 
       {/* Remaining capacity chart */}
       {timeline.length > 0 && (
-        <div className="glass-card p-5 animate-fade-in-up" style={{ cursor: 'default' }}>
+        <div className="brutal-card p-5 animate-fade-in-up bg-surface" style={{ cursor: 'default' }}>
           <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
             Remaining Capacity
           </h3>
@@ -246,9 +247,9 @@ const SimulationChart = memo(function SimulationChart({
                   <stop offset="95%" stopColor="#00d4ff" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1e2a4f" />
-              <XAxis dataKey="time" tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`} stroke="#5a6380" fontSize={12} />
-              <YAxis stroke="#5a6380" fontSize={12} />
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--color-border)" opacity={0.25} />
+              <XAxis dataKey="time" tickFormatter={(v: number) => `${(v / 1000).toFixed(0)}s`} stroke="var(--color-text-muted)" fontSize={12} />
+              <YAxis stroke="var(--color-text-muted)" fontSize={12} />
               <Tooltip content={<RichTooltip />} />
               <Area type="monotone" dataKey="remaining" name="Remaining" stroke="#00d4ff" strokeWidth={2} fillOpacity={1} fill="url(#colorRemaining)" />
             </AreaChart>
@@ -387,13 +388,13 @@ export function PlaygroundPage() {
         </p>
       </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* ── Left panel ──────────────────────────────────────────────────── */}
-        <div className="lg:col-span-1 space-y-5">
-
+      <div className="grid lg:grid-cols-12 gap-6">
+        {/* ── Sidebar: Config & Controls ─────────────────────────────────── */}
+        <div className="lg:col-span-4 xl:col-span-3 flex flex-col gap-5">
+          
           {/* Algorithm card-picker */}
-          <div className="glass-card p-5" style={{ cursor: 'default' }}>
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
+          <div className="brutal-card p-5 bg-surface" style={{ cursor: 'default' }}>
+            <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-3 border-b-2 border-border pb-2">
               Algorithm
             </h3>
             <div className="flex flex-col gap-2">
@@ -403,31 +404,21 @@ export function PlaygroundPage() {
                   onClick={() => setSelectedSlug(a.slug)}
                   className={`algo-radio-card ${selectedSlug === a.slug ? 'selected' : ''}`}
                 >
-                  {/* Radio dot */}
-                  <div className={`w-4 h-4 rounded-full border-2 flex-shrink-0 mt-0.5 flex items-center justify-center transition-all ${
-                    selectedSlug === a.slug
-                      ? 'border-accent'
-                      : 'border-border-light'
-                  }`}>
-                    {selectedSlug === a.slug && (
-                      <div className="w-2 h-2 rounded-full bg-accent" />
-                    )}
-                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className={`text-sm font-medium ${selectedSlug === a.slug ? 'text-text-primary' : 'text-text-secondary'}`}>
+                      <span className="text-sm font-bold">
                         {a.name}
                       </span>
                       {a.recommended && (
-                        <span className="flex items-center gap-0.5 text-warning text-[10px] font-semibold">
+                        <span className="flex items-center gap-0.5 bg-success text-black px-1.5 py-0.5 border border-border text-[10px] font-bold">
                           <Star size={10} fill="currentColor" /> Best
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] text-text-muted mt-0.5 truncate">{a.complexity} · {a.burstTolerance} burst</p>
+                    <p className="text-[11px] text-text-secondary font-medium mt-1 truncate">{a.complexity} · {a.burstTolerance} burst</p>
                   </div>
                   {selectedSlug === a.slug && (
-                    <ChevronRight size={14} className="text-accent flex-shrink-0" />
+                    <ChevronRight size={16} className="flex-shrink-0 self-center" />
                   )}
                 </button>
               ))}
@@ -436,8 +427,8 @@ export function PlaygroundPage() {
 
           {/* Config */}
           {selectedAlgorithm && (
-            <div className="glass-card p-5" style={{ cursor: 'default' }}>
-              <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
+            <div className="brutal-card p-5 bg-surface" style={{ cursor: 'default' }}>
+              <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4 border-b-2 border-border pb-2">
                 Parameters
               </h3>
               <ConfigPanel
@@ -449,8 +440,8 @@ export function PlaygroundPage() {
           )}
 
           {/* Simulation settings */}
-          <div className="glass-card p-5" style={{ cursor: 'default' }}>
-            <h3 className="text-sm font-semibold text-text-muted uppercase tracking-wider mb-4">
+          <div className="brutal-card p-5 bg-surface" style={{ cursor: 'default' }}>
+            <h3 className="text-sm font-bold text-text-primary uppercase tracking-wider mb-4 border-b-2 border-border pb-2">
               Simulation
             </h3>
             <div className="flex flex-col gap-5">
@@ -476,64 +467,50 @@ export function PlaygroundPage() {
             </div>
           </div>
 
-          {/* Action buttons */}
-          <div className="flex gap-3">
-            <div className="flex-1 relative overflow-hidden rounded-lg">
-              <button
-                onClick={handleRun}
-                disabled={running}
-                className="btn-primary w-full relative z-10"
-                style={{ position: 'relative' }}
-              >
-                {running ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Play size={16} />
-                )}
-                {running ? 'Running…' : 'Run Simulation'}
-              </button>
-              {/* progress bar overlay */}
-              {runProgress > 0 && (
-                <div
-                  className="absolute bottom-0 left-0 h-0.5 bg-white/30 transition-all duration-300 z-20"
-                  style={{ width: `${runProgress}%` }}
-                />
+          {/* Actions */}
+          <div className="brutal-card p-5 bg-surface flex flex-col gap-3">
+            <div className="flex gap-3">
+              <div className="flex-1 relative overflow-hidden">
+                <button
+                  onClick={handleRun}
+                  disabled={running}
+                  className="btn-primary w-full relative z-10 justify-center"
+                >
+                  {running ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Play size={16} />
+                  )}
+                  {running ? 'Running…' : 'Run'}
+                </button>
+              </div>
+              {hasRun && (
+                <button onClick={handleReset} className="btn-secondary px-3">
+                  <RotateCcw size={16} />
+                </button>
               )}
             </div>
-            {hasRun && (
-              <button onClick={handleReset} className="btn-secondary">
-                <RotateCcw size={16} />
+            
+            <div className="flex gap-2">
+              <button onClick={handleShare} className="btn-secondary flex-1 justify-center text-xs py-2 px-3">
+                <Share2 size={14} /> Share
               </button>
-            )}
+              <button onClick={handleDownloadCSV} disabled={timeline.length === 0} className="btn-secondary flex-1 justify-center text-xs py-2 px-3">
+                <Download size={14} /> CSV
+              </button>
+            </div>
           </div>
 
-          {/* Share + CSV */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleShare}
-              className="btn-secondary flex-1 text-sm"
-              title="Copy share link to clipboard"
-            >
-              <Share2 size={14} /> Share
-            </button>
-            <button
-              onClick={handleDownloadCSV}
-              disabled={!timeline.length}
-              className="btn-secondary flex-1 text-sm disabled:opacity-40"
-              title="Download timeline as CSV"
-            >
-              <Download size={14} /> CSV
-            </button>
-          </div>
         </div>
-
-        {/* ── Right panel (Memoized Chart) ─────────────────────────────── */}
-        <SimulationChart
-          timeline={timeline}
-          summary={summary}
-          running={running}
-          handleDownloadCSV={handleDownloadCSV}
-        />
+        {/* ── Main Panel: Chart ────────────────────────────────────────── */}
+        <div className="lg:col-span-8 xl:col-span-9">
+          <SimulationChart
+            timeline={timeline}
+            summary={summary}
+            running={running}
+            handleDownloadCSV={handleDownloadCSV}
+          />
+        </div>
       </div>
     </div>
   );

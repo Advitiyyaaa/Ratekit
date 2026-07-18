@@ -1,4 +1,4 @@
-import { Settings, Zap } from 'lucide-react';
+
 
 interface LogoProps {
   size?: number;
@@ -11,18 +11,11 @@ export function Logo({ size = 24, className = '' }: LogoProps) {
       className={`relative flex items-center justify-center ${className}`}
       style={{ width: size, height: size }}
     >
-      <Settings
-        size={size}
-        className="text-text-muted opacity-80"
-        strokeWidth={1.5}
+      <img 
+        src="/favicon.svg" 
+        alt="RateKit Logo" 
+        style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
       />
-      <div className="absolute inset-0 flex items-center justify-center">
-        <Zap
-          size={size * 0.55}
-          className="text-warning fill-warning"
-          strokeWidth={0}
-        />
-      </div>
     </div>
   );
 }

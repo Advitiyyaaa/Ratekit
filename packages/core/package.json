@@ -1,6 +1,6 @@
 {
   "name": "ratekit",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Framework-agnostic rate-limiting library with multiple algorithms and pluggable storage backends",
   "type": "module",
   "main": "./dist/index.js",
@@ -8,6 +8,8 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
@@ -42,11 +44,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/ratekit"
+    "url": "https://github.com/Advitiyyaaa/Ratekit"
   },
-  "homepage": "https://github.com/your-username/ratekit#readme",
+  "homepage": "https://github.com/Advitiyyaaa/Ratekit#readme",
   "bugs": {
-    "url": "https://github.com/your-username/ratekit/issues"
+    "url": "https://github.com/Advitiyyaaa/Ratekit/issues"
   },
   "engines": {
     "node": ">=18.0.0"

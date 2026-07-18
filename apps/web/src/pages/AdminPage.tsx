@@ -71,29 +71,27 @@ export function AdminPage() {
       <div className="flex items-center gap-3 mb-2">
         <button
           onClick={() => navigate(-1)}
-          className="p-2 rounded-lg text-text-muted hover:text-text-primary hover:bg-surface-elevated transition-colors bg-transparent border-none cursor-pointer"
+          className="p-2 border-2 border-border bg-surface text-text-primary hover:bg-surface-hover shadow-[2px_2px_0px_0px_var(--color-shadow)] active:translate-x-[1px] active:translate-y-[1px] transition-all cursor-pointer"
+          title="Go back"
         >
           <ArrowLeft size={18} />
         </button>
-        <Crown size={22} className="text-amber-400" />
-        <h1 className="text-2xl font-bold text-text-primary">Admin Panel</h1>
+        <Crown size={24} className="text-warning" />
+        <h1 className="text-3xl font-extrabold text-text-primary m-0">Admin Panel</h1>
       </div>
-      <p className="text-text-muted text-sm mb-8 ml-12">
+      <p className="text-text-secondary text-sm mb-8 ml-12 font-medium">
         Manage users and roles across RateKit.
       </p>
 
       {/* Users card */}
-      <div
-        className="rounded-2xl border border-border overflow-hidden"
-        style={{ background: 'rgba(16, 22, 40, 0.85)', backdropFilter: 'blur(20px)' }}
-      >
+      <div className="brutal-card bg-surface border-2 border-border shadow-[4px_4px_0px_0px_var(--color-shadow)] overflow-hidden">
         {/* Card header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-border">
-          <div className="flex items-center gap-2 text-text-primary font-semibold">
+        <div className="flex items-center justify-between px-6 py-4 border-b-2 border-border bg-surface-hover">
+          <div className="flex items-center gap-2 text-text-primary font-bold">
             <Users size={18} />
-            <span>Users</span>
+            <span className="uppercase text-sm tracking-wider">Users</span>
             {fetched && (
-              <span className="text-xs text-text-muted bg-surface-elevated px-2 py-0.5 rounded-full ml-1">
+              <span className="text-xs text-text-primary bg-surface border-2 border-border px-2 py-0.5 font-mono font-bold shadow-[2px_2px_0px_0px_var(--color-shadow)] ml-2">
                 {users.length}
               </span>
             )}
@@ -102,7 +100,7 @@ export function AdminPage() {
             id="admin-load-users"
             onClick={loadUsers}
             disabled={fetching}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/10 border border-accent/30 text-accent text-sm font-medium hover:bg-accent/20 transition-colors disabled:opacity-50 cursor-pointer"
+            className="btn-secondary text-xs py-1.5 px-3 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw size={14} className={fetching ? 'animate-spin' : ''} />
             {fetched ? 'Refresh' : 'Load users'}
@@ -111,72 +109,72 @@ export function AdminPage() {
 
         {/* Error */}
         {error && (
-          <div className="mx-6 mt-4 bg-red-500/10 border border-red-500/30 rounded-lg px-4 py-3 text-sm text-red-400">
+          <div className="mx-6 mt-4 bg-danger/10 border-2 border-danger text-danger px-4 py-3 text-sm font-bold shadow-[2px_2px_0px_0px_var(--color-shadow)]">
             {error}
           </div>
         )}
 
         {/* Empty state */}
         {!fetched && !fetching && (
-          <div className="flex flex-col items-center gap-2 py-16 text-text-muted">
-            <Users size={32} className="opacity-30" />
-            <p className="text-sm">Click "Load users" to fetch the user list</p>
+          <div className="flex flex-col items-center gap-3 py-16 text-text-muted">
+            <Users size={40} className="opacity-40 text-text-primary" />
+            <p className="text-sm font-bold text-text-secondary">Click "Load users" to fetch the user list</p>
           </div>
         )}
 
         {/* Loading spinner */}
         {fetching && (
           <div className="flex justify-center py-16">
-            <span className="w-8 h-8 border-2 border-accent/40 border-t-accent rounded-full animate-spin" />
+            <span className="w-8 h-8 border-4 border-text-primary border-t-transparent animate-spin" />
           </div>
         )}
 
         {/* Table */}
         {fetched && !fetching && users.length > 0 && (
           <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+            <table className="w-full text-sm border-collapse">
               <thead>
-                <tr className="text-left text-text-muted border-b border-border">
-                  <th className="px-6 py-3 font-medium">User</th>
-                  <th className="px-6 py-3 font-medium">Role</th>
-                  <th className="px-6 py-3 font-medium">Joined</th>
-                  <th className="px-6 py-3 font-medium text-right">Action</th>
+                <tr className="text-left text-text-primary bg-surface-hover border-b-2 border-border">
+                  <th className="px-6 py-3 font-extrabold uppercase text-xs tracking-wider border-r-2 border-border">User</th>
+                  <th className="px-6 py-3 font-extrabold uppercase text-xs tracking-wider border-r-2 border-border">Role</th>
+                  <th className="px-6 py-3 font-extrabold uppercase text-xs tracking-wider border-r-2 border-border">Joined</th>
+                  <th className="px-6 py-3 font-extrabold uppercase text-xs tracking-wider text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((user) => (
                   <tr
                     key={user.id}
-                    className="border-b border-border/50 hover:bg-surface-elevated/30 transition-colors"
+                    className="border-b-2 border-border hover:bg-surface-hover transition-colors"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 border-r-2 border-border">
                       <div>
-                        <p className="text-text-primary font-medium">{user.name ?? '—'}</p>
-                        <p className="text-text-muted text-xs">{user.email}</p>
+                        <p className="text-text-primary font-bold m-0">{user.name ?? '—'}</p>
+                        <p className="text-text-muted text-xs font-mono m-0">{user.email}</p>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-4 border-r-2 border-border">
                       {user.role === 'admin' ? (
-                        <span className="flex items-center gap-1 text-xs font-semibold text-amber-400 bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 rounded-full w-fit">
+                        <span className="badge badge-warning flex items-center gap-1 w-fit">
                           <Crown size={10} /> Admin
                         </span>
                       ) : (
-                        <span className="text-xs font-medium text-text-secondary bg-surface-elevated border border-border px-2 py-0.5 rounded-full">
+                        <span className="badge badge-accent">
                           User
                         </span>
                       )}
                     </td>
-                    <td className="px-6 py-4 text-text-muted">
+                    <td className="px-6 py-4 text-text-secondary font-mono text-xs border-r-2 border-border">
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <button
                         onClick={() => toggleRole(user.id, user.role)}
                         disabled={actionId === user.id}
-                        className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors cursor-pointer border ml-auto disabled:opacity-50 ${
+                        className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold transition-all cursor-pointer border-2 border-border shadow-[2px_2px_0px_0px_var(--color-shadow)] active:translate-x-[1px] active:translate-y-[1px] ml-auto disabled:opacity-50 ${
                           user.role === 'admin'
-                            ? 'bg-red-500/10 border-red-500/30 text-red-400 hover:bg-red-500/20'
-                            : 'bg-green-500/10 border-green-500/30 text-green-400 hover:bg-green-500/20'
+                            ? 'bg-danger text-white hover:bg-danger/80'
+                            : 'bg-success text-black hover:bg-success/80'
                         }`}
                       >
                         {user.role === 'admin' ? (

@@ -173,17 +173,7 @@ export function HomePage() {
     <div className="flex-1">
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden">
-        {/* CSS grid background */}
-        <div
-          className="absolute inset-0 pointer-events-none opacity-[0.035]"
-          style={{
-            backgroundImage: `
-              linear-gradient(var(--color-accent) 1px, transparent 1px),
-              linear-gradient(90deg, var(--color-accent) 1px, transparent 1px)
-            `,
-            backgroundSize: '60px 60px',
-          }}
-        />
+
         {/* Radial glow */}
         <div
           className="absolute inset-0 pointer-events-none"
@@ -207,7 +197,7 @@ export function HomePage() {
               <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-border-light text-sm text-text-secondary mb-6"
                 style={{ background: 'rgba(0,212,255,0.04)' }}>
                 <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
-                v0.1.0 — Now available
+                v0.1.1 — Now available
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight mb-4">
                 Rate Limiting
@@ -287,8 +277,7 @@ export function HomePage() {
           </Link>
         </div>
         <div
-          className="rounded-xl border border-border overflow-hidden"
-          style={{ background: 'rgba(15, 22, 41, 0.7)' }}
+          className="rounded-xl border-2 border-border bg-surface overflow-hidden shadow-[4px_4px_0px_0px_var(--color-shadow)]"
         >
           <div className="overflow-x-auto">
             <table className="comparison-table">

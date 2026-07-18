@@ -202,19 +202,30 @@ export function AlgorithmDetailPage() {
         </div>
 
         {/* Install box */}
-        <div className="glass-card p-4 mb-8" style={{ cursor: 'default' }}>
+        <div className="brutal-card p-4 mb-8" style={{ cursor: 'default' }}>
           <div className="text-xs text-text-muted uppercase tracking-wider mb-2 font-semibold">
             Install
           </div>
           <div className="flex items-center gap-3">
-            <code className="flex-1 text-sm font-mono text-accent bg-surface px-3 py-2 rounded-lg">
+            <code className="flex-1 text-sm font-mono text-text-primary bg-surface px-3 py-2 border-2 border-border">
               npm install ratekit
             </code>
             <button
               onClick={handleCopyInstall}
-              className="p-2 rounded-lg bg-surface border border-border text-text-muted hover:text-accent hover:border-accent transition-all cursor-pointer"
+              className="px-3 py-2 text-xs font-bold bg-surface border-2 border-border text-text-primary hover:bg-surface-hover transition-all shadow-[2px_2px_0px_0px_var(--color-shadow)] active:translate-x-[1px] active:translate-y-[1px] cursor-pointer flex items-center gap-1.5"
+              title="Copy to clipboard"
             >
-              {installCopied ? <Check size={16} className="text-success" /> : <Copy size={16} />}
+              {installCopied ? (
+                <>
+                  <Check size={14} className="text-success" />
+                  <span>Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Copy size={14} />
+                  <span>Copy</span>
+                </>
+              )}
             </button>
           </div>
         </div>
