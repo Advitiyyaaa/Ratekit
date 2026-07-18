@@ -7,6 +7,9 @@
     "types": ["vite/client"],
     "allowArbitraryExtensions": true,
     "skipLibCheck": true,
+    "paths": {
+      "ratekit": ["../../packages/core/src/index.ts"]
+    },
 
     /* Bundler mode */
     "moduleResolution": "bundler",
